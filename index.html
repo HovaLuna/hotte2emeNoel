@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+		<meta charset = "UTF-8">
+		<title>2eme Noel</title>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Island+Moments&display=swap" rel="stylesheet">
+		
+	</head>
+
+	<style>
+		body{
+			background-color: rgb(43, 82, 41);
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		.banniere{
+			margin-left: auto;
+			margin-right: auto;
+			border: 1px solid #ddd;
+  			border-radius: 4px;
+			padding: 5px;
+			width: 80%;
+			height: auto;
+			text-align: center;
+			position: relative;
+			background-color: black;
+		}
+		.center{
+			position: absolute;
+			bottom: 0%;
+			width: 100%;
+			float:center;
+			text-align: center;
+			font-size: 50px;
+			color: blanchedalmond;
+			font-family: 'Island Moments', cursive;
+		}
+		.connexion{
+			margin-left: auto;
+			margin-right: auto;
+			padding: auto;
+			width: 100%;
+			height: auto;
+			text-align: center;
+			color: cornsilk;
+			margin-top: auto;
+			margin-bottom: auto;
+			display: flex;
+			justify-content: center;
+			align-content: center;
+			font-size: 30px;
+			padding-top: 20px;
+		}
+		.stat{
+			display: inline-block;
+			position: relative;
+			padding:20px;
+			background-color: rgb(138, 192, 125);
+			border-top-left-radius:15px;
+			border-bottom-left-radius:15px;
+		}
+		.log{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding:auto;
+			background-color: rgb(236, 221, 0);
+			border-top-right-radius:15px;
+			border-bottom-right-radius:15px;
+		}
+		.login{
+			font-size: 25px;
+			background-color: rgba(0, 0, 0, 0);
+			border: none;
+			color: rgb(0, 0, 0);
+			padding: 15px 32px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 30px;
+			font-weight: bold;
+		}
+		
+		.log:hover{
+		    background-color:rgba(240, 197, 61, 1);
+		}
+		iframe{
+		    display:grid;
+		    width:100%;
+		    padding:auto;
+		    margin-left:-5px;
+		    border:none;
+		    height:50%;
+		    background-color:rgba(0, 0, 0, 0.5);
+		}
+	</style>
+	
+	<body>
+		<div class="banniere">
+			<img src="https://thumbs.dreamstime.com/b/camale%C3%B3n-del-bast%C3%B3n-de-caramelo-7220776.jpg">
+			<iframe class="center" src="https://hotte2emenoel.000webhostapp.com/timerCountdown"></iframe>
+		</div>
+		<div class = "connexion">
+			<div class = "stat">
+				<div class="cadeau"># de clés offertes</div>
+				<div class = "lutin"># de lutins généreux</div>
+			</div>
+			<div class = "log">
+				<button class = "login" onclick="login(event)" >Se connecter</button>
+			</div>
+		</div>
+
+		<script>
+			window.onload = (event) => {
+				
+			}
+
+            function login(e){
+                window.location.href='auths.php';
+            }
+		</script>
+
+
+	</body>
+</html> 

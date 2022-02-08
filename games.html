@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		
+		<meta charset = "UTF-8">
+		<title>All games</title>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		
+	</head>
+    <body>
+        
+        <script>
+        
+            window.onload = (event) => {
+                countGames();
+            }
+            
+            var choice = "";
+            var nbTickets = window.location.search;
+            var token = window.location.search;
+            var action = window.location.search;
+            var label_ticket = "number";
+            var label_token = "token";
+            var label_action = "action";
+            action = action.split("&")[0];
+            action = action.substr(action.indexOf(label_action) + label_action.length + 1);
+            if(action.localeCompare("list")==0){
+                nbTickets = nbTickets.split("&")[1];
+                nbTickets = nbTickets.substr(nbTickets.indexOf(label_ticket) + label_ticket.length + 1);
+                if(token.split("&").length > 2){
+                    token = token.split("&")[2];
+                    token = token.substr(token.indexOf(label_token) + label_token.length + 1);
+                }else{
+                    token="";
+                }
+            
+                $.ajax({
+                    method: 'POST',
+                    url: 'Database/getKeys.php?action=list',
+                    success:  function(data){
+                        if (data.localeCompare("NONE")!=0){
+                            data = data.split("},{");
+                            for(let i = 0; i<data.length; i++){
+                                insertGame(data[i].split(","));
+                            }
+                        }
+                    },
+                    error: function(err){
+                        console.log(err);
+                        console.log('failed show games');
+                    }
+                });
+            }else if(action.localeCompare("saveChoice")==0){
+                console.log(getCookie("choices"));
+                console.log("coucou");
+                
+            }
+            
+            
+            function insertGame(tmpEntry){
+                //Formattage des données trouvées
+                var tmpName = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                var tmpPlate = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                var tmpUrl = tmpEntry[2].substr(tmpEntry[2].indexOf(":") + 1).replaceAll('"',"").replaceAll("}","").replaceAll("]","").replaceAll("\\","");
+                var tmpId = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                var tmpLutin = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                var tab = document.getElementById("allGames");
+                var row = tab.insertRow($("#allGames tr").length);
+                var newName = row.insertCell(0);
+                var newPlateform = row.insertCell(1);
+                var newUrl = row.insertCell(2);
+                var newLutin = row.insertCell(3);
+                var newAction = row.insertCell(4);
+                newName.innerHTML = tmpName;
+                newPlateform.innerHTML = tmpPlate;
+                getLutin(token, tmpLutin, newLutin);
+                newUrl.innerHTML = '<a href="' + tmpUrl +'" target="_blank">Visiter la page du jeu</a>';
+                newAction.innerHTML = '<input type="checkbox" value="' + tmpId +'" class="cbGame" onclick="countGames()">';
+            }
+            
+            function getLutin(token, lutin, newLutin){
+                if(token.length > 0){
+                    $.ajax({
+                        url : 'https://api.twitch.tv/helix/users?id='+lutin,
+                        method: 'GET',
+                        headers: {
+                            "Authorization": " Bearer " + token,
+                            "Client-Id": " okwwebdh0aua9s28aemjtdecybmj5c"
+                        },
+                        success : function(data){
+                            document.innerHTML = data;
+                            var userData = data.data[0];
+                            newLutin.innerHTML = userData.display_name;
+                        },
+                        error: function(err){
+                            console.log(err);
+                            console.log('Failed channels');
+                        }
+                    });
+                }
+            }
+            
+            function countGames(){
+                var games = document.getElementsByClassName("cbGame");
+                choice = "{";
+                var nb = 0;
+                for(let i = 0; i< games.length; i++){
+                    var g = games[i];
+                    if(g.checked){
+                        nb++;
+                        choice=choice + g.value +",";
+                        if(nb==Number(nbTickets)){
+                            break;
+                        }
+                    }
+                }
+                if(nb==Number(nbTickets)){
+                    for(let i = 0; i< games.length; i++){
+                        if(!games[i].checked){
+                            games[i].disabled = true;
+                        }
+                    }
+                }else{
+                    for(let i = 0; i< games.length; i++){
+                        games[i].disabled = false;
+                    }
+                }
+                if(choice.length>1){
+                    choice = choice.substr(0,choice.length-1);
+                }
+                choice = choice + "}";
+                setCookie("choices", choice);
+                console.log(getCookie("choices"));
+            }
+            
+            
+            //----------- Cookies --------------
+            /**
+             * Fonction pour accéder aux cookies
+             */
+            function getCookie(name){
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let coo = decodedCookie.split(';');
+                for(let i = 0; i<coo.length; i++){
+                    let c = coo[i];
+                    while (c.charAt(0) == ' '){
+                        c = c.substring(1);
+                    }
+                    if(c.indexOf(name + "=") == 0){
+                        return c.substring(name.length + 1, c.length);
+                    }
+                }
+                return "";
+            }
+            
+            //Fonction pour supprimer les cookies
+            function clearCookie(){
+                setCookie("exp", "", -1);
+            }
+            
+            //Fonction pour ajouter un nouveau cookie
+            function setCookie(cname, cvalue, exdays) {
+              const d = new Date();
+              d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+              let expires = "expires="+d.toUTCString();
+              document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+        </script>
+        <!--
+        <iframe src="https://store.steampowered.com/widget/1527950/" frameborder="0" width="646" height="190"></iframe>
+        -->
+        <div style="overflow-y:auto;">
+            <table id="allGames">
+                <thead>
+                    <tr>
+                        <th>Nom du jeu</th>
+                        <th>Plateforme</th>
+                        <th>Lien</th>
+                        <th>Lutin</th>
+                        <th>Choisir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </body>
+    
+    
+
+</html>

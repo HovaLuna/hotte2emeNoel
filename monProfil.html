@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+		<meta charset = "UTF-8">
+		<title>Mon Profil</title>
+
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+		<link rel="stylesheet" type="text/css" href="css/monProfil.css?v=2">
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<script src="script/monProfil.js?v=5"></script>
+		
+	</head>
+
+    <body>
+        <div class="row">
+          <div class="columnLeft">
+            <div class="card" id="profil">
+              <p><img id="avatar"></p>
+              <h3 id="name_user">Card 1</h3>
+              <p><button class = "connection" onclick="logout(event)" >Déconnexion</button></p>
+              <div hidden>
+                    <button id="newWinner" class = "w3-button w3-green dropbtn" onClick="newWinner(event)">Ajouter un gagnant</button>
+                    <div id="winnerChoice">
+                        <img src="" id="avatarWin">
+                        <div id="winnerName"></div>
+                        <div id="winnerId" hidden></div>
+                        <p hidden><button id="btnValidWin" class="w3-button w3-green" onClick="addWinner(event)">Valider</button><button id="btnCancelWin" class="w3-button w3-red" onClick="cancelWinner(event)">Annuler</button></p>
+                    </div>
+                    
+                    <div class="dropdown" id="users">
+                        <div id="myDropdownWinner" class="dropdown-content">
+                            <input type="text" placeholder="Search.." id="myInputWinner" onkeyup="searchPseudo(event)">
+                            <div onMouseOver="showAvatarWin(event)" onClick="hideSearch(event)"></div>
+                            <div onMouseOver="showAvatarWin(event)" onClick="hideSearch(event)"></div>
+                            <div onMouseOver="showAvatarWin(event)" onClick="hideSearch(event)"></div>
+                            <div onMouseOver="showAvatarWin(event)" onClick="hideSearch(event)"></div>
+                            <div onMouseOver="showAvatarWin(event)" onClick="hideSearch(event)"></div>
+                        </div>
+                    </div>
+              </div>
+            </div>
+          </div>
+        
+          <div class="columnRight">
+            <div class="cardTop">
+                <button type="button" class="collapsible"><h3>Clé(s) donnée(s)</h3></button>
+                <div class="content">
+                    <p id="noKey">Pas de clé enregistrée.</p>
+                    <table id=gameKey>
+                        <thead>
+                            <tr>
+                                <th>Nom du jeu</th>
+                                <th>Plateforme</th>
+                                <th>URL</th>
+                                <th>Clé</th>
+                                <th>Statut</th>
+                                <th class="action" hidden>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="newInput" hidden>
+                                <td id="inputName"><input type="text"></td>
+                                <td id="inputPlateform"><input type="text"></td>
+                                <td id="inputUrl"><input type="text"></td>
+                                <td id="inputKey"><input type="text"></td>
+                                <td class="action"><button class="inputAction w3-button w3-green" onClick="addInput(event)">Ajouter</button><button class="inputAction w3-button w3-red" onClick="clearInput(event)">Effacer</button></td> 
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="key" id="addKey" onclick="addKey(event)">Ajouter une clé</button>
+                    <button type="button" class="key" id="editKey" onclick="editKey(event)">Modifier</button>
+                    <button type="button" class="key" id="cancelKey" onclick="cancelAddKey(event)" hidden>Annuler</button>
+                    <button type="button" class="key" id="saveKey" onclick="saveKey(event)" hidden>Enregistrer</button>
+                </div>
+            </div>
+            <div class="cardBottom">
+                <button type="button" class="collapsible"><h3>Ticket(s) gagné(s)</h3></button>
+                <div class="content">
+                    <p id="noTicket">Pas de ticket gagné.</p>
+                    <p id="nbTickets"></p>
+                    <button type="button" class="ticket w3-button w3-green" id="choice" onclick="showGames(event)">Choisir un jeu</button>
+                    <button type="button" class="ticket w3-button w3-blue" id="give" onclick="giveTicket(event)">Offrir son ticket</button>
+                    
+                    <div>
+                        <div id="luckyChoice">
+                            <img src="" id="avatarLucky">
+                            <div id="luckyName"></div>
+                            <div id="luckyId" hidden></div>
+                            <p hidden><button id="btnValidLucky" class="w3-button w3-green" onClick="addLucky(event)">Valider</button><button id="btnCancelLucky" class="w3-button w3-red" onClick="cancelLucky(event)">Annuler</button></p>
+                        </div>
+                        
+                        <div class="dropdown" id="lucky">
+                            <div id="myDropdownLucky" class="dropdown-content">
+                                <input type="text" placeholder="Search.." id="myInputLucky" onkeyup="searchPseudo(event)">
+                                <div onMouseOver="showAvatarLucky(event)" onClick="hideSearch(event)"></div>
+                                <div onMouseOver="showAvatarLucky(event)" onClick="hideSearch(event)"></div>
+                                <div onMouseOver="showAvatarLucky(event)" onClick="hideSearch(event)"></div>
+                                <div onMouseOver="showAvatarLucky(event)" onClick="hideSearch(event)"></div>
+                                <div onMouseOver="showAvatarLucky(event)" onClick="hideSearch(event)"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="gameChoice" hidden>
+                        <iframe scrolling="auto" id="gamesTab" src="games.html?action=list&number=0"></iframe>
+                        <button type="button" class="inputAction w3-button w3-green" id="saveChoice" onclick="saveChoice(event)" hidden>Choisir</button>
+                        <button type="button" class="inputAction w3-button w3-red" id="cancelChoice" onclick="cancelChoice(event)" hidden>Annuler</button>
+                    </div>
+                    
+                    <p id="noUsed">Pas de ticket utilisé</p>
+                    <table id="usedTickets" hidden>
+                        <thead>
+                            <tr>
+                                <th>Ticket offert</th>
+                                <th>Lutin</th>
+                                <th>Nom du jeu</th>
+                                <th>Plateforme</th>
+                                <th>Clé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    
+                    <p id="noGiven">Pas de ticket offert</p>
+                    <table id="givenTickets" hidden>
+                        <thead>
+                            <tr>
+                                <th>Nombre de tickets</th>
+                                <th>Chanceux</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+        </div>
+    </body>
+</html>

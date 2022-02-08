@@ -1,0 +1,266 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: rgb(43, 82, 41);
+}
+
+/* Float four columns side by side */
+.columnLeft {
+  float: left;
+  width: 30%;
+  padding: 0 10px;
+}
+
+.columnRight{
+    float: left;
+    width: 70%;
+    padding: 0 10px;
+}
+
+/* Remove extra left and right margins, due to padding */
+.row {
+    margin: 0 -5px;
+    padding: 1%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive columns */
+@media screen and (max-width: 1000px) {
+  .columnLeft {
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .columnRight {
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+}
+
+/* Style the counter cards */
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 1%;
+  text-align: center;
+  background-color: rgb(130, 184, 88);
+  border-radius:15px;
+}
+
+.cardTop {
+  padding: 1%;
+  text-align: center;
+  background-color: rgb(130, 184, 88);
+  border-top-left-radius:15px;
+  border-top-right-radius:15px;
+}
+
+.cardBottom {
+  padding: 1%;
+  text-align: center;
+  background-color: rgb(130, 184, 88);
+  border-bottom-left-radius:15px;
+  border-bottom-right-radius:15px;
+}
+
+#avatar{
+    border-radius:50%;
+    width:50%;
+}
+
+#name_user{
+    font-size:200%;
+    font-weight: bold;
+}
+
+.connection{
+    font-size: 25px;
+	background-color: rgb(192, 0, 0);
+	border: none;
+	color: rgb(254, 254, 255);
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 30px;
+	font-weight: bold;
+	border-radius:15px;
+}
+
+.connection:hover{
+    background-color: rgb(254, 254, 255);
+    color: rgb(192, 0, 0);
+}
+
+.collapsible {
+  background-color: rgb(189, 215, 88);
+  color: black;
+  cursor: pointer;
+  padding-left: 1%;
+  width: 100%;
+  border: 5px solid rgb(189, 215, 88);
+  border-radius: 10px;
+  text-align: left;
+  outline: none;
+  font-size:120%;
+  font-weight:bold;
+}
+
+.collapsible:hover {
+  background-color: rgb(43, 82, 41);
+  color:#f1f1f1;
+}
+
+.content {
+  padding: 1%;
+  display: none;
+  overflow: hidden;
+  font-size:120%;
+  background-color: #f1f1f1;
+  border-bottom-left-radius:10px;
+  border-bottom-right-radius:10px;
+  border-top-left-radius:0px;
+  border-top-right-radius:0px;
+}
+
+.active {
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
+    border-bottom-left-radius:0px;
+    border-bottom-right-radius:0px;
+}
+
+.key{
+    background-color:rgb(145, 193, 243);
+    border-radius: 10px;
+    font-size:100%;
+    color:red;
+}
+
+table, th, td{
+    text-align: center;
+    border:1px solid black;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td{
+    width:20%;
+}
+
+input {
+    width:90%;
+    margin: 5px;
+}
+
+td:fisrt-child, th:first-child {
+    border-left:none;
+}
+
+tr:last-child {
+    border-bottom: none;
+}
+
+theader {
+    border:1px solid black;
+}
+
+.inputAction {
+    font-weight:bold;
+    display:inline;
+}
+
+.dropbtn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  display: block;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #3e8e41;
+}
+
+#myInputWinner {
+  box-sizing: border-box;
+  background-image: url('searchicon.png');
+  background-position: 14px 12px;
+  background-repeat: no-repeat;
+  font-size: 16px;
+  padding: 14px 20px 12px 45px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+}
+
+#myInputLucky {
+  box-sizing: border-box;
+  background-image: url('searchicon.png');
+  background-position: 14px 12px;
+  background-repeat: no-repeat;
+  font-size: 16px;
+  padding: 14px 20px 12px 45px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+}
+
+#myInputLucky:focus {outline: 3px solid #ddd;}
+
+#myInputWinner:focus {outline: 3px solid #ddd;}
+
+.dropdown {
+  position: absolute;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f6f6f6;
+  min-width: 230px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  z-index: 1;
+}
+
+.dropdown-content div {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown p:hover {background-color: #ddd;}
+
+.show {display: block;}
+
+#winnerChoice {
+    display:block;
+    font-size: 20px;
+}
+
+#winnerChoice img{
+    width:20%;
+}
+
+#luckyChoice {
+    display:block;
+    font-size: 20px;
+}
+
+#luckyChoice img{
+    width:20%;
+}
