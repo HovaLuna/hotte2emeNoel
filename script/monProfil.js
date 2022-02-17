@@ -52,7 +52,7 @@ window.onload = (event) => {
 //Fonction pour afficher les options administrateurs
 function showOptionAdmin(){
     var opt = document.getElementById("newWinner").parentNode;
-    if(getCookie(label_user) == "119536604" /*hovaluna*/ || getCookie(label_user) == "52297247"){
+    if(getCookie(label_user) == "119536604" /*hovaluna*/ || getCookie(label_user) == "52297247" /*Edarius_*/ || getCookie(label_user) == "498013829" /*Buffhalo*/ || getCookie(label_user)=="90402855" /*archibaldwirslayd*/){
         opt.style.display="block";
     }else{
         opt.style.display="none";
@@ -547,9 +547,8 @@ function showGames(){
     document.getElementById("choice").style.display="none";
     tabGame = document.getElementById("gamesTab");
     //retire le 0 mis par défaut
-    tabGame.src = tabGame.src.substr(0,tabGame.src.length-1);
-    tabGame.src = tabGame.src + getCookie(label_tickets);
-    tabGame.src = tabGame.src + "&token=" + getCookie(label_token);
+    tabGame.src = "games.html?action=list&winner=" + getCookie(label_user) + "&token=" + getCookie(label_token)+"&number=" + getCookie(label_tickets);
+    console.log(tabGame.src);
     tabGame.style.display="block";
     tabGame.style.width="100%";
 }
@@ -581,40 +580,41 @@ function ShowGivenKeys(){
                         //Parcour des clés trouvées
                         for(let i = 0; i<select.length; i++){
                             var tmpEntry = select[i].split(",");
-
-                            //Formattage des données trouvées
-                            var tmpName = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                            var tmpKey = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                            var tmpPlate = tmpEntry[2].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                            var tmpUrl = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                            var tmpStatus = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                            if(tmpStatus.localeCompare("0") == 0){
-                                tmpStatus = "disponible";
-                            }else{
-                                tmpStatus = "gagnée";
-                            }
                             
-                            //Résolution de la clé
-                            if(tmpEntry.length > 1){
-                                $.ajax({
-                                    method: 'POST',
-                                    url: 'Database/crypto.php?action=decrypt&idUser='+getCookie(label_user)+'&msg='+tmpKey.replaceAll(" ","+")+'&key='+data1,
-                                    success:  function(data2){
-                                        var tmpArray = [];
-                                        tmpArray.push(tmpName);
-                                        tmpArray.push(tmpPlate);
-                                        tmpArray.push(tmpUrl);
-                                        tmpArray.push(data2);
-                                        tmpArray.push(tmpStatus);
-                                        insertRow("gameKey", tmpArray);
-                                    },
-                                    error: function(err){
-                                        console.log(err);
-                                        console.log('failed get');
-                                    }
-                                });
+                            //Formattage des données trouvées
+                            if(tmpEntry[0].localeCompare("NONE") != 0){
+                                var tmpName = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                                var tmpKey = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                                var tmpPlate = tmpEntry[2].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                                var tmpUrl = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                                var tmpStatus = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+                                if(tmpStatus.localeCompare("0") == 0){
+                                    tmpStatus = "disponible";
+                                }else{
+                                    tmpStatus = "gagnée";
+                                }
+                                
+                                //Résolution de la clé
+                                if(tmpEntry.length > 1){
+                                    $.ajax({
+                                        method: 'POST',
+                                        url: 'Database/crypto.php?action=decrypt&idUser='+getCookie(label_user)+'&msg='+tmpKey.replaceAll(" ","+")+'&key='+data1,
+                                        success:  function(data2){
+                                            var tmpArray = [];
+                                            tmpArray.push(tmpName);
+                                            tmpArray.push(tmpPlate);
+                                            tmpArray.push(tmpUrl);
+                                            tmpArray.push(data2);
+                                            tmpArray.push(tmpStatus);
+                                            insertRow("gameKey", tmpArray);
+                                        },
+                                        error: function(err){
+                                            console.log(err);
+                                            console.log('failed get');
+                                        }
+                                    });
+                                }
                             }
-                       
                         }
                     }
                 },
@@ -760,13 +760,20 @@ function clearTab(id, head, body){
 
 function saveChoice(e){
     console.log("save");
-    showTickets();
-    document.getElementById("gamesTab").src = 'games.html?action=saveChoice';
+    //showTickets();
+    console.log(getCookie("choices"));
+    var choices = getCookie("choices").split(",");
+    for(i=0; i<choices.length; i++){
+        let c = choices[i].replace("}","").replace("{","");
+        document.getElementById("gamesTab").src = 'games.html?action=saveChoice&winner=' + getCookie(label_user) + '&token=' + getCookie(label_token) + '&id=' + c;
+    }
     document.getElementById("gameChoice").style.display="none";
+    document.getElementById("give").disabled = false;
     document.getElementById("choice").style.display="inline-block";
 }
 
 function cancelChoice(e){
     document.getElementById("gameChoice").style.display="none";
+    document.getElementById("give").disabled = false;
     document.getElementById("choice").style.display="inline-block";
 }

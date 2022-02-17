@@ -2,7 +2,7 @@
 
     $servername = "localhost";
     $username = "id18196979_hotte2emenoel";
-    $password = "Edarius-2022";
+    $password = "Hotte2emenoel_";
     $database = "id18196979_hottenoel";
     
     /**
@@ -26,7 +26,7 @@
     
         /**
          * Select the keys games from the games_keys table
-         * @param type $lutin
+         * @param id $lutin
          * @return list of keys found
          */
         public function selectGameKey($lutin) {
@@ -60,6 +60,43 @@
         }
         
         /**
+         * Update a key status to "unable"
+         * @param id id_key
+         * @param winner who choice the key
+         */
+         public function updateKey($id, $winner){
+            $sql = 'UPDATE games_keys SET status=1 WHERE id_key=:id;';
+            try{
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindParam(':id', $id);
+                $stmt->execute();
+            }catch(throwable $e){
+                echo $e . "<br>";
+                return "NONE";
+            }
+            
+            
+            $sql = 'UPDATE tickets_win '
+                . 'SET status=1, id_key=:id '
+                . 'WHERE id_tickets = '
+                . '(SELECT id_tickets FROM tickets_win '
+                . 'WHERE lucky=:winner AND status=0 LIMIT 1)';
+                
+            try{
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->bindParam(':id', $id);
+                $stmt->bindParam(':winner', $winner);
+                $stmt->execute();
+            }catch(throwable $e){
+                echo $e . "<br>";
+                return "NONE";
+            }
+            
+            return "update successfully";
+        
+         }
+        
+        /**
          * List all gmaes from the games_keys table
          * @return list of keys found
          */
@@ -86,27 +123,57 @@
                 return "NONE";
             }
         }
+        
+        public function checkGiver($token,$giver){
+            try {
+                $statement = 'SELECT session_id FROM sessions WHERE session_data= "token=' . $token .' & idUser=' . $giver . ' & end"';
+                $stmt = $this->pdo->prepare($statement);
+                $prepareData = "'token=" . $token . " & idUser=" . $giver . " & end'";
+                $stmt->execute();
+                $sessionId = [];
+                while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                    $sessionId[] = [
+                        'session_id' => $row['session_id'],
+                    ];
+                }
+    
+                return count($sessionId)>0 ? $sessionId : 'NONE';
+            } catch (Exception $e) {
+                echo "exception found " . $e;
+                return '';
+            }
+        }
     }
     
     $newLutin = htmlspecialchars($_GET["lutin"]);
     $action = htmlspecialchars($_GET["action"]);
+    $winner = htmlspecialchars($_GET["winner"]);
+    $id = htmlspecialchars($_GET["id"]);
+    $token = htmlspecialchars($_GET["token"]);
     
-    // Create connection
-    //$conn = mysqli_connect($servername, $username, $password, $database);
-    
-    //$pdo = mysqli_connect($servername, $username, $password, $database);
     try {
     	$pdo = new PDO("mysql:host=" . $servername . ";dbname=" . $database, $username, $password);
-    	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    	 if (!$pdo) {
+            die("Connection failed: " +  '<br>');
+        }
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     	$sqlite = new SQLiteSelect($pdo);
-    	if (strcmp($action,"given")==0){
-    	    $keysFind = $sqlite->selectGameKey($newLutin);
-    	    echo json_encode($keysFind);
-    	}else if(strcmp($action,"list")==0){
-    	    $gamesFind = $sqlite->allGame();
-    	    echo json_encode($gamesFind);
+    	$output = $sqlite->checkGiver($token, $winner);
+    	if($output!="NONE"){
+    	    if (strcmp($action,"given")==0){
+        	    $keysFind = $sqlite->selectGameKey($newLutin);
+        	    echo json_encode($keysFind);
+        	}else if(strcmp($action,"list")==0){
+        	    $gamesFind = $sqlite->allGame();
+        	    echo json_encode($gamesFind);
+        	}else if(strcmp($action, "choice")==0){
+        	    $gameUpdate = $sqlite->updateKey($id, $winner);
+        	    echo json_encode($gameUpdate);
+        	}else{
+        	    echo "wrong action";
+        	}   
     	}else{
-    	    echo "wrong action";
+    	    echo "NONE";   
     	}
     } catch (PDOException $e) {
     	echo $e->getMessage() . "<br>";
@@ -115,10 +182,6 @@
     
     
     
-    // Check connection
-    if (!$pdo) {
-        die("Connection failed: " . mysqli_connect_error() + '<br>');
-    }
-
-    $conn->close();
+   
+    
 ?>

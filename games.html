@@ -22,25 +22,38 @@
             var nbTickets = window.location.search;
             var token = window.location.search;
             var action = window.location.search;
+            var id = window.location.search;
+            var winner = window.location.search;
             var label_ticket = "number";
             var label_token = "token";
             var label_action = "action";
+            var label_id = "id";
+            var label_winner = "winner";
+            
+            winner = winner.split("&")[1];
+            winner = winner.substr(winner.indexOf(label_winner) + label_winner.length + 1);
+            token = token.split("&")[2];
+            console.log("winner: " + winner);
+            console.log("token: " + token);
+            console.log("quest" + action);
+            if(token.length>label_token.length+1){
+                token = token.substr(token.indexOf(label_token) + label_token.length + 1);
+            }else{
+                token = "";
+            }
             action = action.split("&")[0];
             action = action.substr(action.indexOf(label_action) + label_action.length + 1);
-            if(action.localeCompare("list")==0){
-                nbTickets = nbTickets.split("&")[1];
+            console.log("taille: " + token.length);
+            if(action.localeCompare("list")==0 && token.length>0){
+                console.log("try to list");
+                nbTickets = nbTickets.split("&")[3];
                 nbTickets = nbTickets.substr(nbTickets.indexOf(label_ticket) + label_ticket.length + 1);
-                if(token.split("&").length > 2){
-                    token = token.split("&")[2];
-                    token = token.substr(token.indexOf(label_token) + label_token.length + 1);
-                }else{
-                    token="";
-                }
             
                 $.ajax({
                     method: 'POST',
-                    url: 'Database/getKeys.php?action=list',
+                    url: 'Database/getKeys.php?action=list&winner=' + winner + "&token=" + token,
                     success:  function(data){
+                        console.log(data);
                         if (data.localeCompare("NONE")!=0){
                             data = data.split("},{");
                             for(let i = 0; i<data.length; i++){
@@ -54,11 +67,24 @@
                     }
                 });
             }else if(action.localeCompare("saveChoice")==0){
+                id = id.split("&")[3];
+                id = id.substr(id.indexOf(label_id) + label_id.length + 1);
                 console.log(getCookie("choices"));
                 console.log("coucou");
+                //games.html?action=saveChoice&winner=' + getCookie(label_user) + '&token=' + getCookie(label_token) + '&id=' + c;
+                $.ajax({
+                    method: 'POST',
+                    url: 'Database/getKeys.php?action=choice&id=' + id + '&token=' + token + "&winner=" + winner,
+                    success:  function(data){
+                        console.log(data);
+                    },
+                    error: function(err){
+                        console.log(err);
+                        console.log('failed show games');
+                    }
+                });
                 
             }
-            
             
             function insertGame(tmpEntry){
                 //Formattage des données trouvées

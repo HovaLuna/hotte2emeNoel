@@ -2,7 +2,7 @@
 
     $servername = "localhost";
     $username = "id18196979_hotte2emenoel";
-    $password = "Edarius-2022";
+    $password = "Hotte2emenoel_";
     $database = "id18196979_hottenoel";
     
     $getToken = htmlspecialchars($_GET["token"]);
