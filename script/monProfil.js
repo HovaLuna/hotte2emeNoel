@@ -46,7 +46,9 @@ window.onload = (event) => {
     showTickets();
     
     //Affichage de l'option pour ajouter un gagnant
-    showOptionAdmin()
+    showOptionAdmin();
+    
+    showGamesWin();
 }
 
 //Fonction pour afficher les options administrateurs
@@ -489,10 +491,11 @@ function deleteInput(e){
 
 //Fonction qui supprime le contenu d'une ligne
 function clearInput(e){
-    document.getElementById("inputName").childNodes[0].value="";
+    /*document.getElementById("inputName").childNodes[0].value="";
     document.getElementById("inputPlateform").childNodes[0].value="";
     document.getElementById("inputUrl").childNodes[0].value="";
-    document.getElementById("inputKey").childNodes[0].value="";
+    document.getElementById("inputKey").childNodes[0].value="";*/
+    console.Log(e);
 }
 
 /**
@@ -508,7 +511,6 @@ function getPseudoAvatar(){
         },
         success : function(data){
             document.innerHTML = data;
-            console.log('Success channels:');
             var userData = data.data[0];
             document.getElementById('name_user').textContent=userData.display_name;
             document.getElementById('avatar').src=userData.profile_image_url;
@@ -525,12 +527,12 @@ function getPseudoAvatar(){
  */
 function updateToken(){
     insertUrl = 'Database/manageSession.php?action=set&token='+getCookie(label_token)+'&idUser='+getCookie(label_user);
+    console.log(insertUrl);
     $.ajax({
         method: 'POST',
         url: insertUrl,
         success:  function(data){
-            console.log("entry find");
-            console.log(data);
+            console.log("token updated");
         },
         error: function(err){
             console.log(err);
@@ -540,6 +542,7 @@ function updateToken(){
 }
 
 function showGames(){
+    console.log("games.html?action=list&winner=" + getCookie(label_user) + "&token=" + getCookie(label_token)+"&number=" + getCookie(label_tickets));
     document.getElementById("give").disabled = true;
     choiceGame = document.getElementById("gameChoice");
     choiceGame.style.display="block";
@@ -548,7 +551,7 @@ function showGames(){
     tabGame = document.getElementById("gamesTab");
     //retire le 0 mis par défaut
     tabGame.src = "games.html?action=list&winner=" + getCookie(label_user) + "&token=" + getCookie(label_token)+"&number=" + getCookie(label_tickets);
-    console.log(tabGame.src);
+    
     tabGame.style.display="block";
     tabGame.style.width="100%";
 }
@@ -557,20 +560,25 @@ function showGames(){
  * Fonction pour récupérer les clés offertes
  */
 function ShowGivenKeys(){
-    var selectUrl = 'Database/getKeys.php?action=given&lutin=' + getCookie(label_user);
+    listGivenKeys();
+}
+
+async function listGivenKeys(){
+    var selectUrl = 'Database/getKeys.php?action=given&lutin=' + getCookie(label_user) + '&token=' + getCookie(label_token);
+
     $.ajax({
         method: 'POST',
         url: selectUrl,
         success:  function(data){
             var select = data.split("},");
             var tab = document.getElementById("gameKey");
-            
+
             //Identification du demandeur
             insertUrl = 'Database/manageSession.php?action=get&token='+getCookie(label_token)+'&idUser='+getCookie(label_user);
             $.ajax({
                 method: 'POST',
                 url: insertUrl,
-                success:  function(data1){
+                success:  function(key){
                     
                     if(select.length == 1 && select[0] == "[]"){    //pas de clés offertes
                         document.getElementById("noKey").style.display="inline";
@@ -583,37 +591,7 @@ function ShowGivenKeys(){
                             
                             //Formattage des données trouvées
                             if(tmpEntry[0].localeCompare("NONE") != 0){
-                                var tmpName = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                                var tmpKey = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                                var tmpPlate = tmpEntry[2].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                                var tmpUrl = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                                var tmpStatus = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
-                                if(tmpStatus.localeCompare("0") == 0){
-                                    tmpStatus = "disponible";
-                                }else{
-                                    tmpStatus = "gagnée";
-                                }
-                                
-                                //Résolution de la clé
-                                if(tmpEntry.length > 1){
-                                    $.ajax({
-                                        method: 'POST',
-                                        url: 'Database/crypto.php?action=decrypt&idUser='+getCookie(label_user)+'&msg='+tmpKey.replaceAll(" ","+")+'&key='+data1,
-                                        success:  function(data2){
-                                            var tmpArray = [];
-                                            tmpArray.push(tmpName);
-                                            tmpArray.push(tmpPlate);
-                                            tmpArray.push(tmpUrl);
-                                            tmpArray.push(data2);
-                                            tmpArray.push(tmpStatus);
-                                            insertRow("gameKey", tmpArray);
-                                        },
-                                        error: function(err){
-                                            console.log(err);
-                                            console.log('failed get');
-                                        }
-                                    });
-                                }
+                                createArrayGivenKeys(tmpEntry,key, function(){});
                             }
                         }
                     }
@@ -633,6 +611,44 @@ function ShowGivenKeys(){
         error: function(err){
             console.log(err);
             console.log('Failed select');
+        }
+    });
+}
+
+function createArrayGivenKeys(input, key, callback){
+    var tmpEntry = input;
+    var tmpName = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpKey = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpPlate = tmpEntry[2].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpUrl = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpStatus = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","")==0?"disponible":"gagnée";
+    
+    //Résolution de la clé
+    if(tmpEntry.length > 1){
+        resolveKey(tmpKey.replaceAll(" ","+"), key, function(msg_decrypt){
+            var tmpArray = [];
+            tmpArray.push(tmpName);
+            tmpArray.push(tmpPlate);
+            tmpArray.push(tmpUrl);
+            tmpArray.push(msg_decrypt);
+            tmpArray.push(tmpStatus);
+            insertRow("gameKey", tmpArray);
+        });
+    }
+}
+
+function resolveKey(msg_crypt, key, msg_decrypt){
+    $.ajax({
+        method: 'POST',
+        url: 'Database/crypto.php?action=decrypt&idUser='+getCookie(label_user)+'&msg='+msg_crypt+'&key='+key,
+        success:  function(data){
+            console.log("decrypt=" + data);
+            msg_decrypt(data);
+        },
+        error: function(err){
+            console.log(err);
+            console.log('failed get');
+            msg_decrypt("ERROR");
         }
     });
 }
@@ -776,4 +792,86 @@ function cancelChoice(e){
     document.getElementById("gameChoice").style.display="none";
     document.getElementById("give").disabled = false;
     document.getElementById("choice").style.display="inline-block";
+}
+
+function showGamesWin(){
+   listGamesWin();
+}
+
+async function listGamesWin(){
+    var selectUrl = 'Database/getKeys.php?action=games&token='+getCookie(label_token)+'&winner='+getCookie(label_user);
+
+    $.ajax({
+        method: 'POST',
+        url: selectUrl,
+        success:  function(data){
+            var select = data.split("},");
+            var tab = document.getElementById("usedTickets");
+            console.log(data);
+            document.getElementById("usedTickets").style.display="inline-block";
+
+            //Identification du demandeur
+            /*insertUrl = 'Database/manageSession.php?action=get&token='+getCookie(label_token)+'&idUser='+getCookie(label_user);
+            $.ajax({
+                method: 'POST',
+                url: insertUrl,
+                success:  function(key){
+                    
+                    if(select.length == 1 && select[0] == "[]"){    //pas de clés offertes
+                        document.getElementById("noKey").style.display="inline";
+                    }else{                                          //clés offertes trouvées
+                        document.getElementById("noKey").style.display="none";
+                        */
+                        //Parcour des clés trouvées
+                        for(let i = 0; i<select.length; i++){
+                            var tmpEntry = select[i].split(",");
+                            
+                            //Formattage des données trouvées
+                            if(tmpEntry[0].localeCompare("NONE") != 0){
+                                createArrayWinGames(tmpEntry/*,key*/, function(){});
+                            }
+                        }
+                    /*}
+                },
+                error: function(err){
+                    console.log(err);
+                    console.log('failed get');
+                }
+            });*/
+            
+            //Cacher les boutons d'action
+            var actions = document.getElementsByClassName("action");
+            for(let i = 0; i< actions.length; i++){
+                actions[i].style.display="none";
+            }
+        },
+        error: function(err){
+            console.log(err);
+            console.log('Failed select');
+        }
+    });
+}
+
+function createArrayWinGames(input,/* key,*/ callback){
+    var tmpEntry = input;
+    console.log(tmpEntry);
+    var tmpName = tmpEntry[1].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpKey = tmpEntry[0].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpPlate = tmpEntry[2].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpUrl = tmpEntry[3].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    var tmpLucky = tmpEntry[4].split(":")[1].replaceAll('"',"").replaceAll("}","").replaceAll("]","");
+    
+    console.log(tmpName);
+    //Résolution de la clé
+    if(tmpEntry.length > 1){
+        //resolveKey(tmpKey.replaceAll(" ","+"), key, function(msg_decrypt){
+            var tmpArray = [];
+            tmpArray.push(tmpName);
+            tmpArray.push(tmpPlate);
+            tmpArray.push(tmpUrl);
+            tmpArray.push(tmpKey);
+            tmpArray.push(tmpLucky);
+            insertRow("usedTickets", tmpArray);
+        //});
+    }
 }

@@ -9,7 +9,7 @@
 
 		<link rel="stylesheet" type="text/css" href="css/monProfil.css?v=2">
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-		<script src="script/monProfil.js?v=4"></script>
+		<script src="script/monProfil.js?v=1"></script>
 		
 	</head>
 
@@ -78,6 +78,7 @@
             <div class="cardBottom">
                 <button type="button" class="collapsible"><h3>Ticket(s) gagné(s)</h3></button>
                 <div class="content">
+                    <h3>Tickets non utilisés</h3>
                     <p id="noTicket">Pas de ticket gagné.</p>
                     <p id="nbTickets"></p>
                     <button type="button" class="ticket w3-button w3-green" id="choice" onclick="showGames(event)">Choisir un jeu</button>
@@ -109,11 +110,12 @@
                         <button type="button" class="inputAction w3-button w3-red" id="cancelChoice" onclick="cancelChoice(event)" hidden>Annuler</button>
                     </div>
                     
+                    <h3>Jeux choisis</h3>
                     <p id="noUsed">Pas de ticket utilisé</p>
                     <table id="usedTickets" hidden>
                         <thead>
                             <tr>
-                                <th>Ticket offert</th>
+                                <th>Ticket</th>
                                 <th>Lutin</th>
                                 <th>Nom du jeu</th>
                                 <th>Plateforme</th>
@@ -124,6 +126,7 @@
                         </tbody>
                     </table>
                     
+                    <h3>Tickets offerts à d'autres</h3>
                     <p id="noGiven">Pas de ticket offert</p>
                     <table id="givenTickets" hidden>
                         <thead>

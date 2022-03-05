@@ -59,6 +59,35 @@
             return $keys;
         }
         
+        public function getWinGames($winner){
+            $sql = 'SELECT g.key_code, g.game, g.plateform, g.url, g.lutin FROM games_keys as g '
+                . 'INNER JOIN tickets_win as t on t.id_key = g.id_key '
+                . 'WHERE t.lucky= :winner AND t.status = 1';
+            
+            $stmt = $this->pdo->prepare($sql);
+            try{
+                $stmt->bindValue(':winner', $winner);
+            }catch(throwable $e){
+                echo $e . "<br>";
+            }
+            
+            $stmt->execute();
+            
+            $keys = [];
+            
+            while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $keys[] = [
+                    'key_code' => $row['key_code'],
+                    'game' => $row['game'],
+                    'plateform' => $row['plateform'],
+                    'url' => $row['url'],
+                    'lutin' => $row['lutin'],
+                ];
+            }
+    
+            return $keys;
+        }
+        
         /**
          * Update a key status to "unable"
          * @param id id_key
@@ -91,10 +120,13 @@
                 echo $e . "<br>";
                 return "NONE";
             }
-            
             return "update successfully";
         
          }
+         
+         /*public function removeKey(key, game, plateforme, url, lutin){
+             $sql = 'DELETE FROM games_key WHERE '
+         }*/
         
         /**
          * List all gmaes from the games_keys table
@@ -128,7 +160,6 @@
             try {
                 $statement = 'SELECT session_id FROM sessions WHERE session_data= "token=' . $token .' & idUser=' . $giver . ' & end"';
                 $stmt = $this->pdo->prepare($statement);
-                $prepareData = "'token=" . $token . " & idUser=" . $giver . " & end'";
                 $stmt->execute();
                 $sessionId = [];
                 while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -136,7 +167,7 @@
                         'session_id' => $row['session_id'],
                     ];
                 }
-    
+                
                 return count($sessionId)>0 ? $sessionId : 'NONE';
             } catch (Exception $e) {
                 echo "exception found " . $e;
@@ -145,11 +176,11 @@
         }
     }
     
-    $newLutin = htmlspecialchars($_GET["lutin"]);
-    $action = htmlspecialchars($_GET["action"]);
-    $winner = htmlspecialchars($_GET["winner"]);
-    $id = htmlspecialchars($_GET["id"]);
-    $token = htmlspecialchars($_GET["token"]);
+    $getNewLutin = htmlspecialchars($_GET["lutin"]);
+    $getAction = htmlspecialchars($_GET["action"]);
+    $getWinner = htmlspecialchars($_GET["winner"]);
+    $getId = htmlspecialchars($_GET["id"]);
+    $getToken = htmlspecialchars($_GET["token"]);
     
     try {
     	$pdo = new PDO("mysql:host=" . $servername . ";dbname=" . $database, $username, $password);
@@ -158,23 +189,35 @@
         }
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     	$sqlite = new SQLiteSelect($pdo);
-    	$output = $sqlite->checkGiver($token, $winner);
+    	$output = $sqlite->checkGiver($getToken, $getNewLutin);
     	if($output!="NONE"){
-    	    if (strcmp($action,"given")==0){
-        	    $keysFind = $sqlite->selectGameKey($newLutin);
+    	    if (strcmp($getAction,"given")==0){
+        	    $keysFind = $sqlite->selectGameKey($getNewLutin);
         	    echo json_encode($keysFind);
-        	}else if(strcmp($action,"list")==0){
-        	    $gamesFind = $sqlite->allGame();
-        	    echo json_encode($gamesFind);
-        	}else if(strcmp($action, "choice")==0){
-        	    $gameUpdate = $sqlite->updateKey($id, $winner);
-        	    echo json_encode($gameUpdate);
         	}else{
         	    echo "wrong action";
         	}   
     	}else{
-    	    echo "NONE";   
+        	$output = $sqlite->checkGiver($getToken, $getWinner);
+        	if($output!="NONE"){
+        	    if(strcmp($getAction,"list")==0){
+            	    $gamesFind = $sqlite->allGame();
+            	    echo json_encode($gamesFind);
+            	}else if(strcmp($getAction, "choice")==0){
+            	    $gameUpdate = $sqlite->updateKey($getId, $getWinner);
+            	    echo json_encode($gameUpdate);
+            	}else if(strcmp($getAction, "games")==0){
+            	    $gamesWin = $sqlite->getWinGames($getWinner);
+            	    echo json_encode($gamesWin);
+            	}else{
+            	    echo "wrong action";
+            	}
+        	}else{
+        	    echo "NONE";
+        	}
     	}
+    	
+    
     } catch (PDOException $e) {
     	echo $e->getMessage() . "<br>";
     	echo $e . "<br>";
